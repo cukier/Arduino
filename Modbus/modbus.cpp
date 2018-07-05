@@ -82,9 +82,35 @@ uint16_t Modbus::CRC16(const uint8_t *nData, const uint16_t wLength) const {
   return wCRCWord;
 }
 
-std::vector<uint8_t> Modbus::make_request(const uint8_t &dev_addr, const uint16_t &from,
-    const uint16_t &i_size,  const uint8_t &byte_count,
-    std::vector<uint16_t> &data, const uint8_t &command) const {
+bool Modbus::check_CRC(const std::vector<uint8_t> resp, uint8_t command) const {
+  std::vector<uint8_t> arr;
+  uint16_t ar_size, crc_check, crc_in, cont;
+
+  switch (command) {
+    case READ_HOLDING_REGISTERS_COMMAND:
+    case READ_COILS_COMMAND:
+    case READ_DISCRETE_INPUT_COMMAND:
+      ar_size = resp.at(2) + 3;
+      break;
+    case WRITE_MULTIPLE_REGISTERS_COMMAND:
+      ar_size = 6;
+      break;
+    default:
+      break;
+  }
+
+  for (cont = 0; cont < ar_size; ++cont)
+    arr.push_back(resp.at(cont));
+
+  crc_in = make16(resp.at(ar_size + 1), resp.at(ar_size));
+  crc_check = CRC16(&arr[0], ar_size);
+
+  return crc_check == crc_in;;
+}
+
+std::vector<uint8_t> Modbus::make_request(const uint8_t& dev_addr, const uint16_t& from,
+    const uint16_t& i_size,  const uint8_t& byte_count,
+    std::vector<uint16_t>& data, const uint8_t& command) const {
   uint16_t crc, cont;
   std::vector<uint8_t> req;
 
@@ -186,6 +212,40 @@ bool Modbus::read_modbus_response(const std::vector<uint8_t>& req,
   return readBytesNr == expected_size;
 }
 
+bool Modbus::make_transaction(const uint8_t& dev_addr, const uint16_t& from,
+                              const uint16_t& i_size, const uint8_t& byte_count,
+                              std::vector<uint16_t>& data, const uint8_t& command,
+                              std::vector<uint16_t>& modbus_response) const {
+  std::vector<uint8_t> req, resp;
+  std::vector<uint16_t> m_aux(data);
+  uint16_t resp_size;
+  bool resul;
+
+  switch (command) {
+    case READ_DISCRETE_INPUT_COMMAND:
+    case READ_COILS_COMMAND:
+      if (i_size <= 8)
+        resp_size = (uint16_t)(i_size / 8 + 5);
+      else
+        resp_size = (uint16_t)(i_size / 8 + 6);
+      break;
+    case READ_HOLDING_REGISTERS_COMMAND:
+      resp_size = (uint16_t)(i_size << 1) + 5;
+      break;
+    case WRITE_MULTIPLE_REGISTERS_COMMAND:
+      resp_size = (uint16_t) 6;
+      break;
+  }
+
+  req = make_request(dev_addr, from, i_size, byte_count, m_aux, command);
+  resul = read_modbus_response(req, resp);
+
+  if (!resul)
+    return false;
+
+  //if (
+}
+
 std::vector<uint8_t> Modbus::readHoldingRegisters(const uint16_t& slv_addr,
     const uint16_t& from, const uint16_t& len) const {
   std::vector<uint8_t> resp;
@@ -211,6 +271,8 @@ std::vector<uint8_t> Modbus::readHoldingRegisters(const uint16_t& slv_addr,
 
   return resp;
 }
+
+
 
 
 /*

@@ -49,11 +49,16 @@ class Modbus {
     uint16_t make16(const uint8_t h_b, const uint8_t l_b) const;
     uint8_t make8(const uint32_t i_word, const uint8_t index) const;
     uint16_t CRC16(const uint8_t *nData, const uint16_t wLength) const;
+    bool check_CRC(const std::vector<uint8_t> resp, uint8_t command) const;
     std::vector<uint8_t> make_request(const uint8_t& dev_addr, const uint16_t& from,
                                       const uint16_t& i_size,  const uint8_t& byte_count,
                                       std::vector<uint16_t>& data, const uint8_t& command) const;
     bool read_modbus_response(const std::vector<uint8_t>& req,
                               std::vector<uint8_t>& resp) const;
+    bool make_transaction(const uint8_t& dev_addr, const uint16_t& from,
+                          const uint16_t& i_size, const uint8_t& byte_count,
+                          std::vector<uint16_t>& data, const uint8_t& command,
+                          std::vector<uint16_t>& modbus_response) const;
 };
 
 #endif
