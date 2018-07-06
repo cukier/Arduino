@@ -37,7 +37,7 @@ class Modbus {
     ~Modbus();
 
     void init(uint32_t baud);
-    std::vector<uint8_t> readHoldingRegisters(const uint16_t &slv_addr,
+    std::vector<uint16_t> readHoldingRegisters(const uint16_t &slv_addr,
         const uint16_t &from, const uint16_t &len) const;
     //int writeHoldingRegisters(uint16_t slv_addr, std::vector<uint16_t> data);
 
@@ -57,8 +57,10 @@ class Modbus {
                               std::vector<uint8_t>& resp) const;
     bool make_transaction(const uint8_t& dev_addr, const uint16_t& from,
                           const uint16_t& i_size, const uint8_t& byte_count,
-                          std::vector<uint16_t>& data, const uint8_t& command,
+                          const std::vector<uint16_t>& data, const uint8_t& command,
                           std::vector<uint16_t>& modbus_response) const;
+    bool mount_modbus_response(std::vector<uint16_t>& modbus_response,
+                               const std::vector<uint8_t>& resp) const;
 };
 
 #endif
