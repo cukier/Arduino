@@ -1,3 +1,8 @@
+/*
+ * Released under the GPL
+ * (C) 2018 by Cukier (mauriciocukier@gmail.com)
+ */
+
 #ifndef _SRC_MODBUS_H
 #define _SRC_MODUBS_H
 

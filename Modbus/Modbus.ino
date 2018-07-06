@@ -1,4 +1,9 @@
 /*
+   Released under the GPL
+   (C) 2018 by Cukier (mauriciocukier@gmail.com)
+*/
+
+/*
   #include "modbus.h"
 
   Modbus mstr;
