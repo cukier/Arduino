@@ -188,7 +188,6 @@ bool Modbus::read_modbus_response(const std::vector<uint8_t>& req,
 
   byte aux[expected_size];
 
-  //  Serial.flush();
   Serial.setTimeout(3000);
   Serial.write(&req[0], req.size());
   int readBytesNr = Serial.readBytes(aux, expected_size);
@@ -196,23 +195,6 @@ bool Modbus::read_modbus_response(const std::vector<uint8_t>& req,
   for (int cont = 0; cont < readBytesNr; ++cont) {
     resp.push_back((uint8_t) aux[cont]);
   }
-
-  //  while (Serial.available() != expected_size) {
-  //    time_out++;
-  //    delay(1);
-  //
-  //    if (time_out >= 3000) {
-  //      Serial.flush();
-  //      Serial.println("Sem resposta " + String(Serial.available()));
-  //      return false;
-  //    }
-  //  }
-
-  //  for (int cont = 0; cont < Serial.available(); ++cont) {
-  //    Serial.print(String(Serial.read()) + ' ');
-  //  }
-  //
-  //  Serial.flush();
 
   return readBytesNr == expected_size;
 }

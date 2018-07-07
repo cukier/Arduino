@@ -108,7 +108,7 @@ void loop() {
   verificaconexoes();
 
   if (!(millis() % 1000)) {
-    std::vector<uint16_t> resp = mstr.readHoldingRegisters(0x01, 0x00, 0x0A);
+    std::vector<uint16_t> resp = mstr.readHoldingRegisters(0x01, 0x00, 0x14);
     Publicar("/IoT/modbus/size", String(resp.size()), false);
     //    Publicar("/IoT/modbus/valor 0", String(resp.at(0)), false);
 
