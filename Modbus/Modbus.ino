@@ -3,21 +3,6 @@
    (C) 2018 by Cukier (mauriciocukier@gmail.com)
 */
 
-/*
-  #include "modbus.h"
-
-  Modbus mstr;
-
-  void setup() {
-  mstr.init(115200);
-  }
-
-  void loop() {
-  std::vector<uint16_t> resp = mstr.readHoldingRegisters(0x01, 0x00, 0x0A);
-  delay(1000);
-  }
-*/
-
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <WiFiManager.h>
