@@ -1,7 +1,7 @@
 /*
- * Released under the GPL
- * (C) 2018 by Cukier (mauriciocukier@gmail.com)
- */
+   Released under the GPL
+   (C) 2018 by Cukier (mauriciocukier@gmail.com)
+*/
 
 #include "modbus.h"
 #include <Arduino.h>
@@ -232,26 +232,23 @@ bool Modbus::make_transaction(const uint8_t& dev_addr, const uint16_t& from,
 
   m_aux.clear();
 
-  if (!(mount_modbus_response(m_aux, resp))) {
-    return false;
-  }
-
-  modbus_response.clear();
-  modbus_response.insert(modbus_response.end(), m_aux.begin(), m_aux.end());
-
-  return true;
+  return mount_modbus_response(modbus_response, resp);
 }
 
 bool Modbus::mount_modbus_response(std::vector<uint16_t>& modbus_response,
                                    const std::vector<uint8_t>& resp) const {
+  uint16_t until;
 
-  if (!resp.size())
+  if (resp.size() < 7)
     return false;
 
+  until = resp.at(2) + 2;
   modbus_response.clear();
 
-  for (uint16_t cont = 3; cont < resp.size(); ++cont) {
-    modbus_response.push_back(resp.at(cont));
+  for (uint16_t cont = 3; cont < until; cont += 2) {
+    uint16_t aux = (resp.at(cont) << 8) & 0xFF00;
+    aux |= resp.at(cont + 1);
+    modbus_response.push_back(aux);
   }
 
   return true;
@@ -259,24 +256,10 @@ bool Modbus::mount_modbus_response(std::vector<uint16_t>& modbus_response,
 
 std::vector<uint16_t> Modbus::readHoldingRegisters(const uint16_t& slv_addr,
     const uint16_t& from, const uint16_t& len) const {
-  std::vector<uint8_t> resp;
-  std::vector<uint16_t> data;
+  std::vector<uint16_t> resp, data;
+  bool r = false;
 
-  std::vector<uint8_t> req = make_request(slv_addr, from, len, 0x00,
-                                          data,
-                                          READ_HOLDING_REGISTERS_COMMAND);
-  //  Serial.write(&req[0], req.size());
-  bool r = read_modbus_response(req, resp);
+  r = make_transaction(slv_addr, from, len, 0, data, READ_HOLDING_REGISTERS_COMMAND, resp);
 
-  if (r) {
-    r = mount_modbus_response(data, resp);
-  } else {
-    return std::vector<uint16_t>();
-  }
-
-  if (r) {
-    return data;
-  }
-
-  return std::vector<uint16_t>();
+  return resp;
 }

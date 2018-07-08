@@ -93,24 +93,23 @@ void loop() {
   verificaconexoes();
 
   if (!(millis() % 1000)) {
-    std::vector<uint16_t> resp = mstr.readHoldingRegisters(0x01, 0x00, 0x14);
+    std::vector<uint16_t> resp = mstr.readHoldingRegisters(0x01, 0x00, 50);
     Publicar("/IoT/modbus/size", String(resp.size()), false);
     //    Publicar("/IoT/modbus/valor 0", String(resp.at(0)), false);
 
-    String str;
+    for (const auto i : resp) {
+      String str(i);
 
-    for (const auto i : resp)
-      str += String(i) + " ";
-
-    Publicar("/IoT/modbus/valores", str, false);
+      Publicar("/IoT/modbus/valor", str, false);
+    }
   }
 }
 
 void Publicar(String Topic, String Conteudo, bool Retain) {
   char fila[50];
-  char xvalor[30];
+  char xvalor[50];
 
   Topic.toCharArray(fila, 50);
-  Conteudo.toCharArray(xvalor, 30);
+  Conteudo.toCharArray(xvalor, 50);
   client.publish(fila, xvalor, Retain);
 }
